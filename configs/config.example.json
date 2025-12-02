@@ -1,0 +1,41 @@
+{
+  "server": {
+    "http_port": 8080,
+    "socks5_port": 1080
+  },
+  "auth": {
+    "enabled": true,
+    "users": [
+      {
+        "username": "user1",
+        "password": "pass1"
+      },
+      {
+        "username": "user2",
+        "password": "pass2"
+      }
+    ]
+  },
+  "ip_ban": {
+    "enabled": true,
+    "max_failures": 3,
+    "ban_duration_seconds": 300,
+    "whitelist": []
+  },
+  "rate_limit": {
+    "enabled": true,
+    "global_requests_per_second": 1000,
+    "per_ip_requests_per_second": 10
+  },
+  "circuit_breaker": {
+    "enabled": true,
+    "failure_threshold_percent": 50,
+    "window_size_seconds": 60,
+    "min_requests": 20,
+    "break_duration_seconds": 30
+  },
+  "log": {
+    "level": "info",
+    "format": "json"
+  }
+}
