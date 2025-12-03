@@ -1,7 +1,8 @@
 {
   "server": {
     "http_port": 8080,
-    "socks5_port": 1080
+    "socks5_port": 1080,
+    "network": "tcp"
   },
   "auth": {
     "enabled": true,
