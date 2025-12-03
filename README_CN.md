@@ -177,7 +177,8 @@ docker-compose up -d
   },
   "log": {
     "level": "info",          // debug, info, warn, error
-    "format": "json"          // json 或 console
+    "driver": "file",         // 日志驱动 file 文件, stdout 标准输出
+    "path": "logs/"           // 日志驱动 为 file 时的日志文件路径
   }
 }
 ```
@@ -203,7 +204,8 @@ docker-compose up -d
 | `circuit_breaker` | `min_requests` | 窗口内最小请求数 | 20 |
 | `circuit_breaker` | `break_duration_seconds` | 熔断持续时间 | 30 |
 | `log` | `level` | 日志级别 | info |
-| `log` | `format` | 日志格式 (json/console) | json |
+| `log` | `driver` | 日志驱动 | file |
+| `log` | `path` | 日志文件路径 | logs/ |
 
 ## 🛠️ 开发
 
