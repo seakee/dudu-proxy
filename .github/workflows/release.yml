@@ -101,11 +101,9 @@ jobs:
       - name: Generate checksums
         run: |
           cd build
-          sha256sum "${{ steps.build.outputs.binary_name }}" > "${{ steps.build.outputs.binary_name }}.sha256"
+          # Only generate checksum for ZIP file
           sha256sum "${{ steps.zip.outputs.zip_name }}" > "${{ steps.zip.outputs.zip_name }}.sha256"
           
-          echo "Binary checksum:"
-          cat "${{ steps.build.outputs.binary_name }}.sha256"
           echo "ZIP checksum:"
           cat "${{ steps.zip.outputs.zip_name }}.sha256"
 
@@ -114,8 +112,6 @@ jobs:
         with:
           name: ${{ steps.build.outputs.binary_name }}
           path: |
-            build/${{ steps.build.outputs.binary_name }}
-            build/${{ steps.build.outputs.binary_name }}.sha256
             build/${{ steps.zip.outputs.zip_name }}
             build/${{ steps.zip.outputs.zip_name }}.sha256
           retention-days: 1
@@ -153,9 +149,9 @@ jobs:
           # Move all binaries and checksums to release directory
           find artifacts -type f -exec mv {} release/ \;
           
-          # Generate combined checksums file
+          # Generate combined checksums file (only for ZIP files)
           cd release
-          sha256sum dudu-proxy-* | grep -v ".sha256" > checksums.txt
+          sha256sum *.zip > checksums.txt
           
           echo "Release files:"
           ls -lh
@@ -193,22 +189,16 @@ jobs:
             Choose the version for your system:
             
             ### Linux
-            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64)
-            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64.zip)
-            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64)
-            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64.zip)
+            - [dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64.zip)
+            - [dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64.zip)
             
             ### macOS
-            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64) (Intel)
-            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64.zip)
-            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64) (Apple Silicon)
-            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64.zip)
+            - [dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64.zip) (Intel)
+            - [dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64.zip) (Apple Silicon)
             
             ### Windows
-            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe)
-            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe.zip)
-            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe)
-            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe.zip)
+            - [dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe.zip)
+            - [dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe.zip)
             
             ## ✅ Checksum Verification
             
@@ -222,7 +212,7 @@ jobs:
             shasum -a 256 -c checksums.txt
             
             # Windows (PowerShell)
-            Get-FileHash dudu-proxy-*.exe -Algorithm SHA256
+            Get-FileHash dudu-proxy-*.zip -Algorithm SHA256
             ```
           files: |
             release/*
