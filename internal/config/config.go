@@ -18,8 +18,9 @@ type Config struct {
 
 // ServerConfig contains server-related settings
 type ServerConfig struct {
-	HTTPPort   int `json:"http_port"`
-	SOCKS5Port int `json:"socks5_port"`
+	HTTPPort   int    `json:"http_port"`
+	SOCKS5Port int    `json:"socks5_port"`
+	Network    string `json:"network"` // 网络类型: "tcp" (自动), "tcp4" (仅IPv4), "tcp6" (仅IPv6)
 }
 
 // AuthConfig contains authentication settings
@@ -86,6 +87,21 @@ func Load(filename string) (*Config, error) {
 
 // Validate checks if the configuration is valid
 func (c *Config) Validate() error {
+	// 设置默认网络类型
+	if c.Server.Network == "" {
+		c.Server.Network = "tcp"
+	}
+
+	// 验证网络类型
+	validNetworks := map[string]bool{
+		"tcp":  true,
+		"tcp4": true,
+		"tcp6": true,
+	}
+	if !validNetworks[c.Server.Network] {
+		return fmt.Errorf("invalid network type: %s (must be tcp, tcp4, or tcp6)", c.Server.Network)
+	}
+
 	if c.Server.HTTPPort <= 0 || c.Server.HTTPPort > 65535 {
 		return fmt.Errorf("invalid HTTP port: %d", c.Server.HTTPPort)
 	}

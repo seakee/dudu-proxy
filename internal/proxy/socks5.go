@@ -42,6 +42,7 @@ const (
 // SOCKS5Proxy represents a SOCKS5 proxy server
 type SOCKS5Proxy struct {
 	port           int
+	network        string // 网络类型: "tcp", "tcp4", "tcp6"
 	auth           *middleware.AuthMiddleware
 	rateLimit      *middleware.RateLimitMiddleware
 	ipBan          *middleware.IPBanMiddleware
@@ -51,6 +52,7 @@ type SOCKS5Proxy struct {
 // NewSOCKS5Proxy creates a new SOCKS5 proxy
 func NewSOCKS5Proxy(
 	port int,
+	network string,
 	auth *middleware.AuthMiddleware,
 	rateLimit *middleware.RateLimitMiddleware,
 	ipBan *middleware.IPBanMiddleware,
@@ -58,6 +60,7 @@ func NewSOCKS5Proxy(
 ) *SOCKS5Proxy {
 	return &SOCKS5Proxy{
 		port:           port,
+		network:        network,
 		auth:           auth,
 		rateLimit:      rateLimit,
 		ipBan:          ipBan,
@@ -67,12 +70,12 @@ func NewSOCKS5Proxy(
 
 // Start starts the SOCKS5 proxy server
 func (s *SOCKS5Proxy) Start() error {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", s.port))
+	listener, err := net.Listen(s.network, fmt.Sprintf(":%d", s.port))
 	if err != nil {
 		return fmt.Errorf("failed to start SOCKS5 proxy: %w", err)
 	}
 
-	logger.Info("SOCKS5 proxy server started", "port", s.port)
+	logger.Info("SOCKS5 proxy server started", "port", s.port, "network", s.network)
 
 	for {
 		conn, err := listener.Accept()
@@ -319,7 +322,7 @@ func (s *SOCKS5Proxy) handleRequest(clientConn net.Conn, clientIP string) error 
 	}
 	targetPort := binary.BigEndian.Uint16(portBuf)
 
-	target := fmt.Sprintf("%s:%d", targetAddr, targetPort)
+	target := net.JoinHostPort(targetAddr, fmt.Sprintf("%d", targetPort))
 
 	// Connect to target
 	targetConn, err := net.DialTimeout("tcp", target, 10*time.Second)

@@ -148,7 +148,8 @@ docker-compose up -d
 {
   "server": {
     "http_port": 8080,       // HTTP 代理端口
-    "socks5_port": 1080      // SOCKS5 代理端口
+    "socks5_port": 1080,     // SOCKS5 代理端口
+    "network": "tcp"         // 网络类型: tcp (双栈), tcp4 (仅IPv4), tcp6 (仅IPv6)
   },
   "auth": {
     "enabled": true,          // 启用认证
@@ -189,6 +190,7 @@ docker-compose up -d
 |------|------|------|--------|
 | `server` | `http_port` | HTTP 代理监听端口 | 8080 |
 | `server` | `socks5_port` | SOCKS5 代理监听端口 | 1080 |
+| `server` | `network` | 网络类型 (tcp, tcp4, tcp6) | tcp |
 | `auth` | `enabled` | 启用用户认证 | false |
 | `auth` | `users` | 用户名密码列表 | [] |
 | `ip_ban` | `enabled` | 启用 IP 封禁 | false |

@@ -148,7 +148,8 @@ Configuration is managed through a JSON file. Here's a complete example:
 {
   "server": {
     "http_port": 8080,       // HTTP proxy port
-    "socks5_port": 1080      // SOCKS5 proxy port
+    "socks5_port": 1080,     // SOCKS5 proxy port
+    "network": "tcp"         // Network type: tcp (dual-stack), tcp4 (IPv4 only), tcp6 (IPv6 only)
   },
   "auth": {
     "enabled": true,          // Enable authentication
@@ -189,6 +190,7 @@ Configuration is managed through a JSON file. Here's a complete example:
 |---------|--------|-------------|---------|
 | `server` | `http_port` | HTTP proxy listening port | 8080 |
 | `server` | `socks5_port` | SOCKS5 proxy listening port | 1080 |
+| `server` | `network` | Network type (tcp, tcp4, tcp6) | tcp |
 | `auth` | `enabled` | Enable user authentication | false |
 | `auth` | `users` | List of username/password pairs | [] |
 | `ip_ban` | `enabled` | Enable IP ban on auth failures | false |
