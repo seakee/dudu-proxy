@@ -37,3 +37,6 @@ configs/config.json
 
 # Data directory (IP ban persistence)
 data/
+
+# Logs
+logs/
