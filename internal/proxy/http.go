@@ -134,7 +134,7 @@ func (h *HTTPProxy) handleConnection(clientConn net.Conn) {
 // handleConnect handles HTTPS CONNECT requests
 func (h *HTTPProxy) handleConnect(clientConn net.Conn, req *http.Request, clientIP string) {
 	// Connect to the target server
-	targetConn, err := net.DialTimeout("tcp", req.Host, 10*time.Second)
+	targetConn, err := net.DialTimeout(h.network, req.Host, 10*time.Second)
 	if err != nil {
 		logger.Error("Failed to connect to target",
 			"client_ip", clientIP,
@@ -174,7 +174,7 @@ func (h *HTTPProxy) handleHTTP(clientConn net.Conn, req *http.Request, clientIP 
 	}
 
 	// Connect to the target server
-	targetConn, err := net.DialTimeout("tcp", targetAddr, 10*time.Second)
+	targetConn, err := net.DialTimeout(h.network, targetAddr, 10*time.Second)
 	if err != nil {
 		logger.Error("Failed to connect to target",
 			"client_ip", clientIP,
