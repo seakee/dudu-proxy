@@ -1,0 +1,206 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Release Binaries
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Linux
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          # macOS
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          # Windows
+          - goos: windows
+            goarch: amd64
+          - goos: windows
+            goarch: arm64
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 设置 Go 环境
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: 获取版本号
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION=$(git describe --tags --always --dirty)
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Building version: ${VERSION}"
+
+      - name: 构建二进制文件
+        env:
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 0
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          BINARY_NAME="dudu-proxy-${VERSION}-${GOOS}-${GOARCH}"
+          
+          # Windows 需要 .exe 后缀
+          if [ "$GOOS" = "windows" ]; then
+            BINARY_NAME="${BINARY_NAME}.exe"
+          fi
+          
+          echo "Building ${BINARY_NAME}..."
+          
+          go build \
+            -ldflags "-s -w -X main.version=${VERSION}" \
+            -trimpath \
+            -o "build/${BINARY_NAME}" \
+            main.go
+          
+          echo "binary_name=${BINARY_NAME}" >> $GITHUB_OUTPUT
+          
+          # 显示构建信息
+          ls -lh "build/${BINARY_NAME}"
+          file "build/${BINARY_NAME}"
+        id: build
+
+      - name: 生成校验和
+        run: |
+          cd build
+          sha256sum "${{ steps.build.outputs.binary_name }}" > "${{ steps.build.outputs.binary_name }}.sha256"
+          cat "${{ steps.build.outputs.binary_name }}.sha256"
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.build.outputs.binary_name }}
+          path: |
+            build/${{ steps.build.outputs.binary_name }}
+            build/${{ steps.build.outputs.binary_name }}.sha256
+          retention-days: 1
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 获取版本号
+        id: version
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/}
+          else
+            VERSION=$(git describe --tags --always --dirty)
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: 下载所有构建产物
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: 整理发布文件
+        run: |
+          mkdir -p release
+          
+          # 移动所有二进制文件和校验和到 release 目录
+          find artifacts -type f -exec mv {} release/ \;
+          
+          # 生成总校验和文件
+          cd release
+          sha256sum dudu-proxy-* | grep -v ".sha256" > checksums.txt
+          
+          echo "Release files:"
+          ls -lh
+          
+          echo -e "\nChecksums:"
+          cat checksums.txt
+
+      - name: 读取发布说明
+        id: release_notes
+        run: |
+          if [ -f "RELEASE_NOTES.md" ]; then
+            echo "使用 RELEASE_NOTES.md 作为发布说明"
+            NOTES=$(cat RELEASE_NOTES.md)
+          else
+            echo "生成默认发布说明"
+            NOTES="Release ${{ steps.version.outputs.version }}"
+          fi
+          
+          # 使用多行输出
+          {
+            echo 'notes<<EOF'
+            echo "$NOTES"
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+      - name: 创建 GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ steps.version.outputs.version }}
+          body: |
+            ${{ steps.release_notes.outputs.notes }}
+            
+            ## 📦 下载
+            
+            选择适合你系统的版本下载:
+            
+            ### Linux
+            - [dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64)
+            - [dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64)
+            
+            ### macOS
+            - [dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64) (Intel)
+            - [dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64) (Apple Silicon)
+            
+            ### Windows
+            - [dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe)
+            - [dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe)
+            
+            ## ✅ 校验和验证
+            
+            下载 [checksums.txt](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/checksums.txt) 验证文件完整性:
+            
+            ```bash
+            # Linux/macOS
+            sha256sum -c checksums.txt
+            
+            # macOS (alternative)
+            shasum -a 256 -c checksums.txt
+            
+            # Windows (PowerShell)
+            Get-FileHash dudu-proxy-*.exe -Algorithm SHA256
+            ```
+          files: |
+            release/*
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
