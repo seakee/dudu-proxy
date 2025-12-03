@@ -106,11 +106,14 @@ docker-compose up -d
 
 ## 🛠 Configuration
 
-Copy the example configuration and adjust it to your needs:
+The release ZIP file includes a default `config.json`. You can edit it directly:
+
 ```bash
-cp configs/config.example.json configs/config.json
-# Edit configs/config.json
-./dudu-proxy -config configs/config.json
+# Edit config.json
+nano config.json
+
+# Run with config
+./dudu-proxy -config config.json
 ```
 
 ## 📝 Changelog
