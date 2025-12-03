@@ -17,6 +17,7 @@ import (
 // HTTPProxy represents an HTTP proxy server
 type HTTPProxy struct {
 	port           int
+	network        string // 网络类型: "tcp", "tcp4", "tcp6"
 	auth           *middleware.AuthMiddleware
 	rateLimit      *middleware.RateLimitMiddleware
 	ipBan          *middleware.IPBanMiddleware
@@ -26,6 +27,7 @@ type HTTPProxy struct {
 // NewHTTPProxy creates a new HTTP proxy
 func NewHTTPProxy(
 	port int,
+	network string,
 	auth *middleware.AuthMiddleware,
 	rateLimit *middleware.RateLimitMiddleware,
 	ipBan *middleware.IPBanMiddleware,
@@ -33,6 +35,7 @@ func NewHTTPProxy(
 ) *HTTPProxy {
 	return &HTTPProxy{
 		port:           port,
+		network:        network,
 		auth:           auth,
 		rateLimit:      rateLimit,
 		ipBan:          ipBan,
@@ -42,12 +45,12 @@ func NewHTTPProxy(
 
 // Start starts the HTTP proxy server
 func (h *HTTPProxy) Start() error {
-	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", h.port))
+	listener, err := net.Listen(h.network, fmt.Sprintf(":%d", h.port))
 	if err != nil {
 		return fmt.Errorf("failed to start HTTP proxy: %w", err)
 	}
 
-	logger.Info("HTTP proxy server started", "port", h.port)
+	logger.Info("HTTP proxy server started", "port", h.port, "network", h.network)
 
 	for {
 		conn, err := listener.Accept()

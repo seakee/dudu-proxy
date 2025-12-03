@@ -64,6 +64,7 @@ func NewServer(cfg *config.Config) *Server {
 	// Create proxies
 	httpProxy := proxy.NewHTTPProxy(
 		cfg.Server.HTTPPort,
+		cfg.Server.Network,
 		authMW,
 		rateLimitMW,
 		ipBanMW,
@@ -72,6 +73,7 @@ func NewServer(cfg *config.Config) *Server {
 
 	socks5Proxy := proxy.NewSOCKS5Proxy(
 		cfg.Server.SOCKS5Port,
+		cfg.Server.Network,
 		authMW,
 		rateLimitMW,
 		ipBanMW,

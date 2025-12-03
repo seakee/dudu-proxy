@@ -64,6 +64,7 @@ func logConfigSummary(cfg *config.Config) {
 	logger.Info("Server configuration",
 		"http_port", cfg.Server.HTTPPort,
 		"socks5_port", cfg.Server.SOCKS5Port,
+		"network", cfg.Server.Network,
 		"auth_enabled", cfg.Auth.Enabled,
 		"auth_users", len(cfg.Auth.Users))
 
