@@ -31,6 +31,54 @@
 
 ## 📦 Installation
 
+### Download Pre-built Binaries
+
+Download the latest release for your platform from the [Releases page](https://github.com/seakee/dudu-proxy/releases):
+
+**Linux:**
+```bash
+# AMD64
+wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-amd64
+chmod +x dudu-proxy-v*-linux-amd64
+./dudu-proxy-v*-linux-amd64 -config configs/config.json
+
+# ARM64
+wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-arm64
+chmod +x dudu-proxy-v*-linux-arm64
+./dudu-proxy-v*-linux-arm64 -config configs/config.json
+```
+
+**macOS:**
+```bash
+# Intel (AMD64)
+curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-amd64
+chmod +x dudu-proxy-v*-darwin-amd64
+./dudu-proxy-v*-darwin-amd64 -config configs/config.json
+
+# Apple Silicon (ARM64)
+curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-arm64
+chmod +x dudu-proxy-v*-darwin-arm64
+./dudu-proxy-v*-darwin-arm64 -config configs/config.json
+```
+
+**Windows:**
+```powershell
+# Download from releases page and run
+dudu-proxy-v*-windows-amd64.exe -config configs/config.json
+```
+
+**Verify checksums:**
+```bash
+# Download checksums file
+wget https://github.com/seakee/dudu-proxy/releases/latest/download/checksums.txt
+
+# Verify (Linux/macOS)
+sha256sum -c checksums.txt
+
+# Or on macOS
+shasum -a 256 -c checksums.txt
+```
+
 ### From Source
 
 ```bash
@@ -41,8 +89,8 @@ cd dudu-proxy
 # Build
 make build
 
-# Or build manually
-go build -o build/dudu-proxy cmd/dudu-proxy/main.go
+# Or build for all platforms
+make build-all
 ```
 
 ### Using Docker
@@ -162,8 +210,16 @@ Configuration is managed through a JSON file. Here's a complete example:
 ### Building
 
 ```bash
-# Build binary
+# Build binary for current platform
 make build
+
+# Build for all platforms
+make build-all
+
+# Build for specific platforms
+make build-linux    # Linux (amd64 + arm64)
+make build-darwin   # macOS (amd64 + arm64)
+make build-windows  # Windows (amd64 + arm64)
 
 # Run tests
 make test
