@@ -90,8 +90,11 @@ jobs:
           BINARY_NAME="${{ steps.build.outputs.binary_name }}"
           ZIP_NAME="${BINARY_NAME}.zip"
           
-          # Create ZIP archive
-          zip "${ZIP_NAME}" "${BINARY_NAME}"
+          # Copy config example to build directory
+          cp ../configs/config.example.json .
+          
+          # Create ZIP archive with binary and config example
+          zip "${ZIP_NAME}" "${BINARY_NAME}" config.example.json
           
           echo "zip_name=${ZIP_NAME}" >> $GITHUB_OUTPUT
           echo "Created ${ZIP_NAME}"

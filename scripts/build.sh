@@ -69,7 +69,9 @@ build_binary() {
         
         # Create ZIP archive
         echo -e "${YELLOW}  Creating ZIP archive...${NC}"
-        (cd "${BUILD_DIR}" && zip -q "${output_name}.zip" "${output_name}")
+        # Copy config example and create ZIP with both binary and config
+        cp configs/config.example.json "${BUILD_DIR}/"
+        (cd "${BUILD_DIR}" && zip -q "${output_name}.zip" "${output_name}" config.example.json)
         local zip_size=$(ls -lh "${BUILD_DIR}/${output_name}.zip" | awk '{print $5}')
         echo -e "${GREEN}  ✓ ${output_name}.zip (${zip_size})${NC}"
         

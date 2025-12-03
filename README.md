@@ -38,12 +38,14 @@ Download the latest release for your platform from the [Releases page](https://g
 **Linux:**
 ```bash
 # AMD64
-wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-amd64
+wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-amd64.zip
+unzip dudu-proxy-v*-linux-amd64.zip
 chmod +x dudu-proxy-v*-linux-amd64
 ./dudu-proxy-v*-linux-amd64 -config configs/config.json
 
 # ARM64
-wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-arm64
+wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-arm64.zip
+unzip dudu-proxy-v*-linux-arm64.zip
 chmod +x dudu-proxy-v*-linux-arm64
 ./dudu-proxy-v*-linux-arm64 -config configs/config.json
 ```
@@ -51,19 +53,22 @@ chmod +x dudu-proxy-v*-linux-arm64
 **macOS:**
 ```bash
 # Intel (AMD64)
-curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-amd64
+curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-amd64.zip
+unzip dudu-proxy-v*-darwin-amd64.zip
 chmod +x dudu-proxy-v*-darwin-amd64
 ./dudu-proxy-v*-darwin-amd64 -config configs/config.json
 
 # Apple Silicon (ARM64)
-curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-arm64
+curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-arm64.zip
+unzip dudu-proxy-v*-darwin-arm64.zip
 chmod +x dudu-proxy-v*-darwin-arm64
 ./dudu-proxy-v*-darwin-arm64 -config configs/config.json
 ```
 
 **Windows:**
 ```powershell
-# Download from releases page and run
+# Download ZIP from releases page
+# Extract and run
 dudu-proxy-v*-windows-amd64.exe -config configs/config.json
 ```
 
@@ -72,7 +77,7 @@ dudu-proxy-v*-windows-amd64.exe -config configs/config.json
 # Download checksums file
 wget https://github.com/seakee/dudu-proxy/releases/latest/download/checksums.txt
 
-# Verify (Linux/macOS)
+# Verify ZIP files (Linux/macOS)
 sha256sum -c checksums.txt
 
 # Or on macOS
