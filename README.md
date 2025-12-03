@@ -176,10 +176,11 @@ Configuration is managed through a JSON file. Here's a complete example:
     "break_duration_seconds": 30        // Circuit open duration
   },
   "log": {
-    "level": "info",          // debug, info, warn, error
-    "format": "json"          // json or console
+    "level": "info",                   // debug, info, warn, error
+    "driver": "file",                  // file, stdout
+    "path": "logs/"                    // log file path
   }
-}
+} 
 ```
 
 ### Configuration Options
@@ -203,7 +204,8 @@ Configuration is managed through a JSON file. Here's a complete example:
 | `circuit_breaker` | `min_requests` | Min requests in window | 20 |
 | `circuit_breaker` | `break_duration_seconds` | Circuit open time | 30 |
 | `log` | `level` | Logging level | info |
-| `log` | `format` | Log format (json/console) | json |
+| `log` | `driver` | Logging driver | file |
+| `log` | `path` | Log file path | logs/ |
 
 ## 🛠️ Development
 
