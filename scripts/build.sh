@@ -1,22 +1,22 @@
 #!/bin/bash
 
-# 构建脚本 - 用于本地构建多平台版本
-# 使用方法: ./scripts/build.sh [version]
+# Build script - Build binaries for multiple platforms
+# Usage: ./scripts/build.sh [version]
 
 set -e
 
-# 颜色输出
+# Color output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# 获取版本号
+# Get version
 VERSION=${1:-$(git describe --tags --always --dirty 2>/dev/null || echo "dev")}
 BUILD_DIR="build"
 BINARY_NAME="dudu-proxy"
 
-# 支持的平台
+# Supported platforms
 PLATFORMS=(
     "linux/amd64"
     "linux/arm64"
@@ -27,18 +27,18 @@ PLATFORMS=(
 )
 
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}DuDu Proxy 构建脚本${NC}"
+echo -e "${GREEN}DuDu Proxy Build Script${NC}"
 echo -e "${GREEN}========================================${NC}"
-echo -e "版本: ${YELLOW}${VERSION}${NC}"
-echo -e "构建目录: ${YELLOW}${BUILD_DIR}${NC}"
+echo -e "Version: ${YELLOW}${VERSION}${NC}"
+echo -e "Build directory: ${YELLOW}${BUILD_DIR}${NC}"
 echo ""
 
-# 清理并创建构建目录
-echo -e "${YELLOW}清理构建目录...${NC}"
+# Clean and create build directory
+echo -e "${YELLOW}Cleaning build directory...${NC}"
 rm -rf "${BUILD_DIR}"
 mkdir -p "${BUILD_DIR}"
 
-# 构建函数
+# Build function
 build_binary() {
     local platform=$1
     local goos=$(echo $platform | cut -d'/' -f1)
@@ -46,16 +46,16 @@ build_binary() {
     
     local output_name="${BINARY_NAME}-${VERSION}-${goos}-${goarch}"
     
-    # Windows 需要 .exe 后缀
+    # Add .exe suffix for Windows
     if [ "$goos" = "windows" ]; then
         output_name="${output_name}.exe"
     fi
     
     local output_path="${BUILD_DIR}/${output_name}"
     
-    echo -e "${YELLOW}构建 ${goos}/${goarch}...${NC}"
+    echo -e "${YELLOW}Building ${goos}/${goarch}...${NC}"
     
-    # 构建
+    # Build
     CGO_ENABLED=0 GOOS=$goos GOARCH=$goarch go build \
         -ldflags "-s -w -X main.version=${VERSION}" \
         -trimpath \
@@ -63,24 +63,32 @@ build_binary() {
         main.go
     
     if [ $? -eq 0 ]; then
-        # 显示文件信息
+        # Show file info
         local size=$(ls -lh "${output_path}" | awk '{print $5}')
         echo -e "${GREEN}✓ ${output_name} (${size})${NC}"
         
-        # 生成校验和
+        # Create ZIP archive
+        echo -e "${YELLOW}  Creating ZIP archive...${NC}"
+        (cd "${BUILD_DIR}" && zip -q "${output_name}.zip" "${output_name}")
+        local zip_size=$(ls -lh "${BUILD_DIR}/${output_name}.zip" | awk '{print $5}')
+        echo -e "${GREEN}  ✓ ${output_name}.zip (${zip_size})${NC}"
+        
+        # Generate checksums
         if command -v sha256sum &> /dev/null; then
             (cd "${BUILD_DIR}" && sha256sum "${output_name}" > "${output_name}.sha256")
+            (cd "${BUILD_DIR}" && sha256sum "${output_name}.zip" > "${output_name}.zip.sha256")
         elif command -v shasum &> /dev/null; then
             (cd "${BUILD_DIR}" && shasum -a 256 "${output_name}" > "${output_name}.sha256")
+            (cd "${BUILD_DIR}" && shasum -a 256 "${output_name}.zip" > "${output_name}.zip.sha256")
         fi
     else
-        echo -e "${RED}✗ 构建失败: ${goos}/${goarch}${NC}"
+        echo -e "${RED}✗ Build failed: ${goos}/${goarch}${NC}"
         return 1
     fi
 }
 
-# 构建所有平台
-echo -e "${GREEN}开始构建所有平台版本...${NC}"
+# Build all platforms
+echo -e "${GREEN}Building all platform versions...${NC}"
 echo ""
 
 for platform in "${PLATFORMS[@]}"; do
@@ -89,24 +97,24 @@ done
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}构建完成!${NC}"
+echo -e "${GREEN}Build complete!${NC}"
 echo -e "${GREEN}========================================${NC}"
 echo ""
 
-# 生成总校验和文件
-echo -e "${YELLOW}生成校验和文件...${NC}"
+# Generate combined checksums file
+echo -e "${YELLOW}Generating checksums file...${NC}"
 if command -v sha256sum &> /dev/null; then
     (cd "${BUILD_DIR}" && sha256sum ${BINARY_NAME}-* | grep -v ".sha256" > checksums.txt)
 elif command -v shasum &> /dev/null; then
     (cd "${BUILD_DIR}" && shasum -a 256 ${BINARY_NAME}-* | grep -v ".sha256" > checksums.txt)
 fi
 
-# 显示构建结果
-echo -e "${GREEN}构建产物:${NC}"
+# Show build results
+echo -e "${GREEN}Build artifacts:${NC}"
 ls -lh "${BUILD_DIR}" | grep -v "^total" | awk '{printf "  %s  %s\n", $5, $9}'
 
 echo ""
-echo -e "${GREEN}校验和:${NC}"
+echo -e "${GREEN}Checksums:${NC}"
 if [ -f "${BUILD_DIR}/checksums.txt" ]; then
     cat "${BUILD_DIR}/checksums.txt" | while read line; do
         echo "  $line"
@@ -114,4 +122,4 @@ if [ -f "${BUILD_DIR}/checksums.txt" ]; then
 fi
 
 echo ""
-echo -e "${GREEN}所有文件已保存到 ${BUILD_DIR}/ 目录${NC}"
+echo -e "${GREEN}All files saved to ${BUILD_DIR}/ directory${NC}"

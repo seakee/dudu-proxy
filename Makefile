@@ -85,8 +85,10 @@ build-linux: ## Build for Linux (amd64 and arm64)
 	@mkdir -p $(BUILD_DIR)
 	@echo "Building Linux amd64..."
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GOBUILD) $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-$(VERSION)-linux-amd64 $(MAIN)
+	@cd $(BUILD_DIR) && zip -q $(BINARY_NAME)-$(VERSION)-linux-amd64.zip $(BINARY_NAME)-$(VERSION)-linux-amd64
 	@echo "Building Linux arm64..."
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GOBUILD) $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-$(VERSION)-linux-arm64 $(MAIN)
+	@cd $(BUILD_DIR) && zip -q $(BINARY_NAME)-$(VERSION)-linux-arm64.zip $(BINARY_NAME)-$(VERSION)-linux-arm64
 	@echo "Linux builds complete"
 
 build-darwin: ## Build for macOS (amd64 and arm64)
@@ -94,8 +96,10 @@ build-darwin: ## Build for macOS (amd64 and arm64)
 	@mkdir -p $(BUILD_DIR)
 	@echo "Building macOS amd64..."
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 $(GOBUILD) $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-$(VERSION)-darwin-amd64 $(MAIN)
+	@cd $(BUILD_DIR) && zip -q $(BINARY_NAME)-$(VERSION)-darwin-amd64.zip $(BINARY_NAME)-$(VERSION)-darwin-amd64
 	@echo "Building macOS arm64..."
 	CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 $(GOBUILD) $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-$(VERSION)-darwin-arm64 $(MAIN)
+	@cd $(BUILD_DIR) && zip -q $(BINARY_NAME)-$(VERSION)-darwin-arm64.zip $(BINARY_NAME)-$(VERSION)-darwin-arm64
 	@echo "macOS builds complete"
 
 build-windows: ## Build for Windows (amd64 and arm64)
@@ -103,6 +107,8 @@ build-windows: ## Build for Windows (amd64 and arm64)
 	@mkdir -p $(BUILD_DIR)
 	@echo "Building Windows amd64..."
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 $(GOBUILD) $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-$(VERSION)-windows-amd64.exe $(MAIN)
+	@cd $(BUILD_DIR) && zip -q $(BINARY_NAME)-$(VERSION)-windows-amd64.exe.zip $(BINARY_NAME)-$(VERSION)-windows-amd64.exe
 	@echo "Building Windows arm64..."
 	CGO_ENABLED=0 GOOS=windows GOARCH=arm64 $(GOBUILD) $(BUILD_FLAGS) -o $(BUILD_DIR)/$(BINARY_NAME)-$(VERSION)-windows-arm64.exe $(MAIN)
+	@cd $(BUILD_DIR) && zip -q $(BINARY_NAME)-$(VERSION)-windows-arm64.exe.zip $(BINARY_NAME)-$(VERSION)-windows-arm64.exe
 	@echo "Windows builds complete"

@@ -33,18 +33,18 @@ jobs:
             goarch: arm64
     
     steps:
-      - name: 检出代码
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 设置 Go 环境
+      - name: Set up Go
         uses: actions/setup-go@v5
         with:
           go-version-file: 'go.mod'
           cache: true
 
-      - name: 获取版本号
+      - name: Get version
         id: version
         run: |
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
@@ -55,7 +55,7 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Building version: ${VERSION}"
 
-      - name: 构建二进制文件
+      - name: Build binary
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
@@ -64,7 +64,7 @@ jobs:
           VERSION=${{ steps.version.outputs.version }}
           BINARY_NAME="dudu-proxy-${VERSION}-${GOOS}-${GOARCH}"
           
-          # Windows 需要 .exe 后缀
+          # Add .exe suffix for Windows
           if [ "$GOOS" = "windows" ]; then
             BINARY_NAME="${BINARY_NAME}.exe"
           fi
@@ -79,24 +79,45 @@ jobs:
           
           echo "binary_name=${BINARY_NAME}" >> $GITHUB_OUTPUT
           
-          # 显示构建信息
+          # Show build info
           ls -lh "build/${BINARY_NAME}"
           file "build/${BINARY_NAME}"
         id: build
 
-      - name: 生成校验和
+      - name: Create ZIP archive
+        run: |
+          cd build
+          BINARY_NAME="${{ steps.build.outputs.binary_name }}"
+          ZIP_NAME="${BINARY_NAME}.zip"
+          
+          # Create ZIP archive
+          zip "${ZIP_NAME}" "${BINARY_NAME}"
+          
+          echo "zip_name=${ZIP_NAME}" >> $GITHUB_OUTPUT
+          echo "Created ${ZIP_NAME}"
+          ls -lh "${ZIP_NAME}"
+        id: zip
+
+      - name: Generate checksums
         run: |
           cd build
           sha256sum "${{ steps.build.outputs.binary_name }}" > "${{ steps.build.outputs.binary_name }}.sha256"
+          sha256sum "${{ steps.zip.outputs.zip_name }}" > "${{ steps.zip.outputs.zip_name }}.sha256"
+          
+          echo "Binary checksum:"
           cat "${{ steps.build.outputs.binary_name }}.sha256"
+          echo "ZIP checksum:"
+          cat "${{ steps.zip.outputs.zip_name }}.sha256"
 
-      - name: 上传构建产物
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.build.outputs.binary_name }}
           path: |
             build/${{ steps.build.outputs.binary_name }}
             build/${{ steps.build.outputs.binary_name }}.sha256
+            build/${{ steps.zip.outputs.zip_name }}
+            build/${{ steps.zip.outputs.zip_name }}.sha256
           retention-days: 1
 
   release:
@@ -105,12 +126,12 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: 检出代码
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 获取版本号
+      - name: Get version
         id: version
         run: |
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
@@ -120,19 +141,19 @@ jobs:
           fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: 下载所有构建产物
+      - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: 整理发布文件
+      - name: Prepare release files
         run: |
           mkdir -p release
           
-          # 移动所有二进制文件和校验和到 release 目录
+          # Move all binaries and checksums to release directory
           find artifacts -type f -exec mv {} release/ \;
           
-          # 生成总校验和文件
+          # Generate combined checksums file
           cd release
           sha256sum dudu-proxy-* | grep -v ".sha256" > checksums.txt
           
@@ -142,50 +163,56 @@ jobs:
           echo -e "\nChecksums:"
           cat checksums.txt
 
-      - name: 读取发布说明
+      - name: Read release notes
         id: release_notes
         run: |
           if [ -f "RELEASE_NOTES.md" ]; then
-            echo "使用 RELEASE_NOTES.md 作为发布说明"
+            echo "Using RELEASE_NOTES.md for release description"
             NOTES=$(cat RELEASE_NOTES.md)
           else
-            echo "生成默认发布说明"
+            echo "Generating default release notes"
             NOTES="Release ${{ steps.version.outputs.version }}"
           fi
           
-          # 使用多行输出
+          # Use multiline output
           {
             echo 'notes<<EOF'
             echo "$NOTES"
             echo EOF
           } >> $GITHUB_OUTPUT
 
-      - name: 创建 GitHub Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           name: ${{ steps.version.outputs.version }}
           body: |
             ${{ steps.release_notes.outputs.notes }}
             
-            ## 📦 下载
+            ## 📦 Downloads
             
-            选择适合你系统的版本下载:
+            Choose the version for your system:
             
             ### Linux
-            - [dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64)
-            - [dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64)
+            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64)
+            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-amd64.zip)
+            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64)
+            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-linux-arm64.zip)
             
             ### macOS
-            - [dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64) (Intel)
-            - [dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64) (Apple Silicon)
+            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64) (Intel)
+            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-amd64.zip)
+            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64) (Apple Silicon)
+            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-darwin-arm64.zip)
             
             ### Windows
-            - [dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe)
-            - [dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe)
+            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe)
+            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-amd64.exe.zip)
+            - Binary: [dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe)
+            - ZIP: [dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe.zip](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/dudu-proxy-${{ steps.version.outputs.version }}-windows-arm64.exe.zip)
             
-            ## ✅ 校验和验证
+            ## ✅ Checksum Verification
             
-            下载 [checksums.txt](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/checksums.txt) 验证文件完整性:
+            Download [checksums.txt](https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.version }}/checksums.txt) to verify file integrity:
             
             ```bash
             # Linux/macOS
