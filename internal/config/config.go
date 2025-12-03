@@ -44,9 +44,9 @@ type IPBanConfig struct {
 
 // RateLimitConfig contains rate limiting settings
 type RateLimitConfig struct {
-	Enabled                  bool `json:"enabled"`
-	GlobalRequestsPerSecond  int  `json:"global_requests_per_second"`
-	PerIPRequestsPerSecond   int  `json:"per_ip_requests_per_second"`
+	Enabled                 bool `json:"enabled"`
+	GlobalRequestsPerSecond int  `json:"global_requests_per_second"`
+	PerIPRequestsPerSecond  int  `json:"per_ip_requests_per_second"`
 }
 
 // CircuitBreakerConfig contains circuit breaker settings
@@ -61,7 +61,8 @@ type CircuitBreakerConfig struct {
 // LogConfig contains logging settings
 type LogConfig struct {
 	Level  string `json:"level"`
-	Format string `json:"format"`
+	Driver string `json:"driver"`
+	Path   string `json:"path"`
 }
 
 // Load reads and parses the configuration file
