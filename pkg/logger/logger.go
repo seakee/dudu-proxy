@@ -10,7 +10,7 @@ import (
 var globalLogger *skLogger.Manager
 
 // Init initializes the logger with the specified level and format
-func Init(level, format string) {
+func Init(level, driver, path string) {
 	// Create logger options
 	opts := []skLogger.Option{
 		skLogger.WithLevel(level),
@@ -18,13 +18,13 @@ func Init(level, format string) {
 
 	// Set driver based on format
 	// sk-pkg/logger supports "stdout" and "file" as drivers
-	// We use "stdout" for both json and console formats
-	opts = append(opts, skLogger.WithDriver("stdout"))
+	opts = append(opts, skLogger.WithDriver(driver))
+
+	// Set log path
+	opts = append(opts, skLogger.WithLogPath(path))
 
 	// Enable color for console format
-	if format != "json" {
-		opts = append(opts, skLogger.WithColor(true))
-	}
+	opts = append(opts, skLogger.WithColor(true))
 
 	// Initialize logger
 	var err error

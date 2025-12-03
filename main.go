@@ -29,7 +29,7 @@ func main() {
 	}
 
 	// Initialize logger
-	logger.Init(cfg.Log.Level, cfg.Log.Format)
+	logger.Init(cfg.Log.Level, cfg.Log.Driver, cfg.Log.Path)
 
 	logger.Info("Starting DuDu Proxy",
 		"version", version,
