@@ -36,6 +36,7 @@
   },
   "log": {
     "level": "info",
-    "format": "json"
+    "driver": "file",
+    "path": "logs/"
   }
 }
