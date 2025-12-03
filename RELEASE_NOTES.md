@@ -8,4 +8,6 @@
 
 ## 🐛 Bug Fixes
 
-- **IPv6 Address Handling**: Fixed an issue where connecting to IPv6 targets via SOCKS5 proxy would fail with "too many colons in address" error.
+- **IPv6 Address Handling**: 
+  - Fixed an issue where connecting to IPv6 targets via SOCKS5 proxy would fail with "too many colons in address" error.
+  - Enforced configured network type (e.g., `tcp4`) for outbound connections to prevent "network is unreachable" errors on non-IPv6 systems.
