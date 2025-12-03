@@ -325,7 +325,7 @@ func (s *SOCKS5Proxy) handleRequest(clientConn net.Conn, clientIP string) error 
 	target := net.JoinHostPort(targetAddr, fmt.Sprintf("%d", targetPort))
 
 	// Connect to target
-	targetConn, err := net.DialTimeout("tcp", target, 10*time.Second)
+	targetConn, err := net.DialTimeout(s.network, target, 10*time.Second)
 	if err != nil {
 		logger.Error("Failed to connect to target",
 			"client_ip", clientIP,
