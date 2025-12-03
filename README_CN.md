@@ -31,6 +31,54 @@
 
 ## 📦 安装
 
+### 下载预编译二进制文件
+
+从 [Releases 页面](https://github.com/seakee/dudu-proxy/releases) 下载适合你平台的最新版本：
+
+**Linux:**
+```bash
+# AMD64
+wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-amd64
+chmod +x dudu-proxy-v*-linux-amd64
+./dudu-proxy-v*-linux-amd64 -config configs/config.json
+
+# ARM64
+wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-arm64
+chmod +x dudu-proxy-v*-linux-arm64
+./dudu-proxy-v*-linux-arm64 -config configs/config.json
+```
+
+**macOS:**
+```bash
+# Intel (AMD64)
+curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-amd64
+chmod +x dudu-proxy-v*-darwin-amd64
+./dudu-proxy-v*-darwin-amd64 -config configs/config.json
+
+# Apple Silicon (ARM64)
+curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-arm64
+chmod +x dudu-proxy-v*-darwin-arm64
+./dudu-proxy-v*-darwin-arm64 -config configs/config.json
+```
+
+**Windows:**
+```powershell
+# 从 releases 页面下载后运行
+dudu-proxy-v*-windows-amd64.exe -config configs/config.json
+```
+
+**验证校验和:**
+```bash
+# 下载校验和文件
+wget https://github.com/seakee/dudu-proxy/releases/latest/download/checksums.txt
+
+# 验证 (Linux/macOS)
+sha256sum -c checksums.txt
+
+# 或在 macOS 上
+shasum -a 256 -c checksums.txt
+```
+
 ### 从源码编译
 
 ```bash
@@ -41,8 +89,8 @@ cd dudu-proxy
 # 编译
 make build
 
-# 或者手动编译
-go build -o build/dudu-proxy cmd/dudu-proxy/main.go
+# 或编译所有平台版本
+make build-all
 ```
 
 ### 使用 Docker
@@ -162,8 +210,16 @@ docker-compose up -d
 ### 构建
 
 ```bash
-# 编译二进制文件
+# 编译当前平台的二进制文件
 make build
+
+# 编译所有平台版本
+make build-all
+
+# 编译特定平台
+make build-linux    # Linux (amd64 + arm64)
+make build-darwin   # macOS (amd64 + arm64)
+make build-windows  # Windows (amd64 + arm64)
 
 # 运行测试
 make test
