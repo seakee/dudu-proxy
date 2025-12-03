@@ -40,14 +40,14 @@ Download the latest release for your platform from the [Releases page](https://g
 # AMD64
 wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-amd64.zip
 unzip dudu-proxy-v*-linux-amd64.zip
-chmod +x dudu-proxy-v*-linux-amd64
-./dudu-proxy-v*-linux-amd64 -config configs/config.json
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 
 # ARM64
 wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-arm64.zip
 unzip dudu-proxy-v*-linux-arm64.zip
-chmod +x dudu-proxy-v*-linux-arm64
-./dudu-proxy-v*-linux-arm64 -config configs/config.json
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 ```
 
 **macOS:**
@@ -55,21 +55,21 @@ chmod +x dudu-proxy-v*-linux-arm64
 # Intel (AMD64)
 curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-amd64.zip
 unzip dudu-proxy-v*-darwin-amd64.zip
-chmod +x dudu-proxy-v*-darwin-amd64
-./dudu-proxy-v*-darwin-amd64 -config configs/config.json
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 
 # Apple Silicon (ARM64)
 curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-arm64.zip
 unzip dudu-proxy-v*-darwin-arm64.zip
-chmod +x dudu-proxy-v*-darwin-arm64
-./dudu-proxy-v*-darwin-arm64 -config configs/config.json
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 ```
 
 **Windows:**
 ```powershell
-# Download ZIP from releases page
-# Extract and run
-dudu-proxy-v*-windows-amd64.exe -config configs/config.json
+# Download and extract ZIP from releases page
+# The ZIP contains dudu-proxy.exe and config.json
+dudu-proxy.exe -config config.json
 ```
 
 **Verify checksums:**

@@ -90,11 +90,22 @@ jobs:
           BINARY_NAME="${{ steps.build.outputs.binary_name }}"
           ZIP_NAME="${BINARY_NAME}.zip"
           
-          # Copy config example to build directory
-          cp ../configs/config.example.json .
+          # Determine simple binary name for inside ZIP
+          if [[ "$BINARY_NAME" == *.exe ]]; then
+            SIMPLE_NAME="dudu-proxy.exe"
+          else
+            SIMPLE_NAME="dudu-proxy"
+          fi
           
-          # Create ZIP archive with binary and config example
-          zip "${ZIP_NAME}" "${BINARY_NAME}" config.example.json
+          # Copy and rename files for ZIP
+          cp "${BINARY_NAME}" "${SIMPLE_NAME}"
+          cp ../configs/config.example.json config.json
+          
+          # Create ZIP archive with simplified names
+          zip "${ZIP_NAME}" "${SIMPLE_NAME}" config.json
+          
+          # Clean up temporary files
+          rm "${SIMPLE_NAME}" config.json
           
           echo "zip_name=${ZIP_NAME}" >> $GITHUB_OUTPUT
           echo "Created ${ZIP_NAME}"

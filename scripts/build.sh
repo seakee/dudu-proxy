@@ -69,9 +69,24 @@ build_binary() {
         
         # Create ZIP archive
         echo -e "${YELLOW}  Creating ZIP archive...${NC}"
-        # Copy config example and create ZIP with both binary and config
-        cp configs/config.example.json "${BUILD_DIR}/"
-        (cd "${BUILD_DIR}" && zip -q "${output_name}.zip" "${output_name}" config.example.json)
+        
+        # Determine simple binary name for inside ZIP
+        if [ "$goos" = "windows" ]; then
+            simple_name="dudu-proxy.exe"
+        else
+            simple_name="dudu-proxy"
+        fi
+        
+        # Copy and rename files for ZIP
+        cp "${output_path}" "${BUILD_DIR}/${simple_name}"
+        cp configs/config.example.json "${BUILD_DIR}/config.json"
+        
+        # Create ZIP with simplified names
+        (cd "${BUILD_DIR}" && zip -q "${output_name}.zip" "${simple_name}" config.json)
+        
+        # Clean up temporary files
+        rm "${BUILD_DIR}/${simple_name}" "${BUILD_DIR}/config.json"
+        
         local zip_size=$(ls -lh "${BUILD_DIR}/${output_name}.zip" | awk '{print $5}')
         echo -e "${GREEN}  ✓ ${output_name}.zip (${zip_size})${NC}"
         

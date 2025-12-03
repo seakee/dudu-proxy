@@ -40,33 +40,38 @@ Download the latest release for your platform from the [Releases page](https://g
 **Linux:**
 ```bash
 # AMD64
-wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v1.0.0-linux-amd64
-chmod +x dudu-proxy-v1.0.0-linux-amd64
-./dudu-proxy-v1.0.0-linux-amd64 -config configs/config.json
+wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-amd64.zip
+unzip dudu-proxy-v*-linux-amd64.zip
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 
 # ARM64
-wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v1.0.0-linux-arm64
-chmod +x dudu-proxy-v1.0.0-linux-arm64
-./dudu-proxy-v1.0.0-linux-arm64 -config configs/config.json
+wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-arm64.zip
+unzip dudu-proxy-v*-linux-arm64.zip
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 ```
 
 **macOS:**
 ```bash
 # Intel (AMD64)
-curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v1.0.0-darwin-amd64
-chmod +x dudu-proxy-v1.0.0-darwin-amd64
-./dudu-proxy-v1.0.0-darwin-amd64 -config configs/config.json
+curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-amd64.zip
+unzip dudu-proxy-v*-darwin-amd64.zip
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 
 # Apple Silicon (ARM64)
-curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v1.0.0-darwin-arm64
-chmod +x dudu-proxy-v1.0.0-darwin-arm64
-./dudu-proxy-v1.0.0-darwin-arm64 -config configs/config.json
+curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-arm64.zip
+unzip dudu-proxy-v*-darwin-arm64.zip
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 ```
 
 **Windows:**
 ```powershell
-# Download from releases page and run
-dudu-proxy-v1.0.0-windows-amd64.exe -config configs/config.json
+# Download and extract ZIP from releases page
+# The ZIP contains dudu-proxy.exe and config.json
+dudu-proxy.exe -config config.json
 ```
 
 **Verify checksums:**
@@ -74,7 +79,7 @@ dudu-proxy-v1.0.0-windows-amd64.exe -config configs/config.json
 # Download checksums file
 wget https://github.com/seakee/dudu-proxy/releases/latest/download/checksums.txt
 
-# Verify (Linux/macOS)
+# Verify ZIP files (Linux/macOS)
 sha256sum -c checksums.txt
 
 # Or on macOS

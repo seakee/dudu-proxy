@@ -40,14 +40,14 @@
 # AMD64
 wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-amd64.zip
 unzip dudu-proxy-v*-linux-amd64.zip
-chmod +x dudu-proxy-v*-linux-amd64
-./dudu-proxy-v*-linux-amd64 -config configs/config.json
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 
 # ARM64
 wget https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-linux-arm64.zip
 unzip dudu-proxy-v*-linux-arm64.zip
-chmod +x dudu-proxy-v*-linux-arm64
-./dudu-proxy-v*-linux-arm64 -config configs/config.json
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 ```
 
 **macOS:**
@@ -55,21 +55,21 @@ chmod +x dudu-proxy-v*-linux-arm64
 # Intel (AMD64)
 curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-amd64.zip
 unzip dudu-proxy-v*-darwin-amd64.zip
-chmod +x dudu-proxy-v*-darwin-amd64
-./dudu-proxy-v*-darwin-amd64 -config configs/config.json
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 
 # Apple Silicon (ARM64)
 curl -LO https://github.com/seakee/dudu-proxy/releases/latest/download/dudu-proxy-v*-darwin-arm64.zip
 unzip dudu-proxy-v*-darwin-arm64.zip
-chmod +x dudu-proxy-v*-darwin-arm64
-./dudu-proxy-v*-darwin-arm64 -config configs/config.json
+chmod +x dudu-proxy
+./dudu-proxy -config config.json
 ```
 
 **Windows:**
 ```powershell
-# 从 releases 页面下载 ZIP 压缩包
-# 解压后运行
-dudu-proxy-v*-windows-amd64.exe -config configs/config.json
+# 从 releases 页面下载并解压 ZIP 压缩包
+# ZIP 包含 dudu-proxy.exe 和 config.json
+dudu-proxy.exe -config config.json
 ```
 
 **验证校验和:**
